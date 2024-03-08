@@ -35,6 +35,7 @@ import {
   Row,
   UncontrolledDropdown,
 } from "reactstrap";
+import img1 from "../../assets/img/brand/Web-Synergies-Transparent-Logo-High-resolution-1.png";
 
 const Sidebar = (props) => {
   const [collapseOpen, setCollapseOpen] = useState();
@@ -147,6 +148,15 @@ const Sidebar = (props) => {
           <span className="navbar-toggler-icon" />
         </button>
         {/* Brand */}
+
+        <div className="d-flex justify-content-center mb-3">
+          <img
+            src={img1}
+            alt="web synergies logo"
+            className="img-fluid"
+            style={{ width: "120px", height: "auto" }}
+          />
+        </div>
         {logo ? (
           <NavbarBrand className="pt-0" {...navbarBrandProps}>
             <img
@@ -278,7 +288,7 @@ const Sidebar = (props) => {
                     <img
                       alt="..."
                       className="rounded-circle"
-                      src={require("../../assets/img/theme/team-4-800x800.jpg")}
+                      src={require("../../assets/img/theme/static-employee.jpeg")}
                       style={{ width: "90px", height: "85px" }}
                     />
                   </a>
@@ -397,6 +407,10 @@ const Sidebar = (props) => {
                       </Modal>
                     </Col>
                   </Row>
+                  <div className="h5 mt-4">
+                    <i className="ni business_briefcase-24 mr-2" />
+                    Solution Manager - Creative Tim Officer
+                  </div>
                 </div>
               </CardBody>
             </Card>

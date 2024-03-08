@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -16,6 +16,9 @@ import {
 import img1 from "../../assets/img/brand/Web-Synergies-Transparent-Logo-High-resolution-1.png";
 
 const Login = () => {
+  useEffect(() => {
+    // Store the email "admin@gmail.com" in local storage
+  }, []);
   const [values, setValues] = useState({
     email: "",
     password: "",
@@ -26,10 +29,22 @@ const Login = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    const { email, password } = values;
+    console.log(values,email,password);
+    //const storedEmail = localStorage.getItem("adminEmail");
     // Check if the email and password match the hardcoded values
-    if (values.email === "admin@gmail.com" && values.password === "password") {
+    if (email === "admin@gmail.com" && password === "password") {
+     
+      localStorage.clear();
       // Navigate to the admin dashboard if the login is successful
-      navigate("/admin/index");
+      localStorage.setItem("currentLoginUserEmail", values.email);
+      navigate("/admin/dashboard");
+    } else if (email === "employee@gmail.com" && password === "123456") {
+      localStorage.clear();
+      // Navigate to the admin dashboard if the login is successful
+      localStorage.setItem("currentLoginUserEmail", values.email);
+      // Navigate to the employee profile if the login is successful
+      navigate("/admin/user-profile");
     } else {
       // Set an error message if the login fails
       setError("Invalid email or password. Please try again.");

@@ -2,7 +2,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import UserHeader from "components/Headers/UserHeader.js";
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Select from "react-select";
 import {
   Button,
@@ -72,6 +72,7 @@ const Profile = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [dob, setDob] = useState("");
+  const [failureModalOpen, setFailureModalOpen] = useState(false);
 
   const handleExperienceChange = (id, newValue) => {
     setSkills((prevSkills) =>
@@ -125,7 +126,7 @@ const Profile = () => {
     const experience = selectedExperiences[index];
     const newExperienceErrors = [...experienceErrors];
     if (!experience) {
-      newExperienceErrors[index] = "Experience is required";
+      newExperienceErrors[index] = " ";
     } else {
       newExperienceErrors[index] = "";
     }
@@ -206,6 +207,7 @@ const Profile = () => {
   const [expertiseErrors, setExpertiseErrors] = useState(
     Array.from({ length: skills.length }, () => "")
   );
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const [pastExperience, setPastExperience] = useState("");
   const [experience, setExperience] = useState("");
@@ -255,6 +257,15 @@ const Profile = () => {
   const [phoneNumberError, setPhoneNumberError] = useState("");
   const [genderError, setGenderError] = useState("");
   const [nationalityError, setNationalityError] = useState("");
+
+  useEffect(() => {
+    // Retrieve the stored email from localStorage
+    const storedEmail = localStorage.getItem("currentLoginUserEmail");
+    console.log(storedEmail);
+    if (storedEmail) {
+      setEmail(storedEmail);
+    }
+  }, []);
 
   const toggleModal = () => {
     setModalOpen(!modalOpen);
@@ -309,6 +320,8 @@ const Profile = () => {
       setPostalCode(formattedPostalCode);
     }
   };
+
+  const [currentRow, setCurrentRow] = useState(null);
 
   const handleNewConfirmPasswordChange = (e) => {
     setNewConfirmPassword(e.target.value);
@@ -370,12 +383,12 @@ const Profile = () => {
     e.preventDefault();
 
     // Validate all fields
+
     const isDobValid = validateField(dob, setDobError);
     const isPersonalMailValid = validateField(
       personalmail,
       setPersonalMailError
     );
-
 
     const isTechnologyValid = selectedTechnologies.map((technology, index) => {
       validateTechnology(index);
@@ -392,7 +405,9 @@ const Profile = () => {
       return !expertiseErrors[index];
     });
 
-    const isAllRowsValid = skills.every(skill => skill.technology && skill.experience && skill.expertise);
+    const isAllRowsValid = skills.every(
+      (skill) => skill.technology && skill.experience && skill.expertise
+    );
 
     const isClientValid = validateField(clientName, setClientError);
     const isPastValid = validateField(pastExperience, setPastExperienceError);
@@ -418,42 +433,61 @@ const Profile = () => {
       isTechnologyValid: isTechnologyValid,
       isExperiencedValid: isExperiencedValid,
       isExpertiseValid: isExpertiseValid,
+      isLanguagesKnownValid: isLanguagesKnownValid,
+      isClientValid: isClientValid,
+      isManagerValid: isManagerValid,
+      isDobValid: isDobValid,
+      isAllRowsValid: isAllRowsValid,
+      isAboutMeValid: isAboutMeValid,
+      isPostalCodeValid: isPostalCodeValid,
+      isPastValid: isPastValid,
+      isCountryValid: isCountryValid,
+      isPersonalMailValid: isPersonalMailValid,
+      isCityValid: isCityValid,
+      isExperienceValid: isExperienceValid,
+      isAddressValid: isAddressValid,
+      isLastNameValid: isLastNameValid,
+      isEmployeeValid: isEmployeeValid,
+      isDojValid: isDojValid,
+      isEmailValid: isEmailValid,
+      isReportToValid: isReportToValid,
+      isPhoneNumberValid: isPhoneNumberValid,
+      isGenderValid: isGenderValid,
+      isFirstNameValid: isFirstNameValid,
     };
 
     console.log(obj);
     // If all fields are valid, proceed with submission
     if (
-      (isDobValid &&
-        isAllRowsValid &&
-        isLanguagesKnownValid &&
-        isExpertiseValid &&
-        isExperiencedValid &&
-        isTechnologyValid &&
-        isAboutMeValid &&
-        isPostalCodeValid &&
-        isPastValid &&
-        isCountryValid &&
-        isPersonalMailValid &&
-        isCityValid &&
-        isExperienceValid &&
-        isAddressValid &&
-        isLastNameValid &&
-        isEmployeeValid &&
-        isClientValid) ||
-      (isManagerValid &&
-        isDojValid &&
-        isEmailValid &&
-        isReportToValid &&
-        isPhoneNumberValid &&
-        isGenderValid &&
-        isFirstNameValid)
+      isDobValid &&
+      isLanguagesKnownValid &&
+      isExpertiseValid &&
+      isExperiencedValid &&
+      isTechnologyValid &&
+      isAboutMeValid &&
+      isPostalCodeValid &&
+      isPastValid &&
+      isCountryValid &&
+      isPersonalMailValid &&
+      isCityValid &&
+      isExperienceValid &&
+      isAddressValid &&
+      isLastNameValid &&
+      isEmployeeValid &&
+      isDojValid &&
+      isEmailValid &&
+      isReportToValid &&
+      isPhoneNumberValid &&
+      isGenderValid &&
+      isFirstNameValid
+      // (isClientValid || isManagerValid)
     ) {
-      // Perform form submission logic here
+      setFormSubmitted(true);
       console.log("Form submitted successfully!");
       toggleSuccessModal();
+      // Perform form submission logic
     } else {
-      // Some fields are invalid, handle the error or display error messages
-      console.log("Form submission failed. Please check the fields.");
+      setFailureModalOpen(true);
     }
   };
 
@@ -463,154 +497,6 @@ const Profile = () => {
       {/* Page content */}
       <Container className="mt--7" fluid>
         <Row>
-          <Col className="order-xl-2 mb-5 mb-xl-0" xl="4">
-            <Card className="card-profile shadow">
-              <Row className="justify-content-center">
-                <Col className="order-lg-2" lg="3">
-                  <div className="card-profile-image">
-                    <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                      <img
-                        alt="..."
-                        className="rounded-circle"
-                        src={require("../../assets/img/theme/team-4-800x800.jpg")}
-                      />
-                    </a>
-                  </div>
-                </Col>
-              </Row>
-              <CardHeader className="text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                
-              </CardHeader>
-              <CardBody className="pt-0 pt-md-4">
-                <Row>
-                  <div className="col">
-                    <div className="card-profile-stats d-flex justify-content-center mt-md-5"></div>
-                  </div>
-                </Row>
-                <div className="text-center">
-                  <h3>
-                    Jessica Jones
-                    <span className="font-weight-light">, 27</span>
-                  </h3>
-                  <Row className="justify-content-center">
-                    <Col lg="8">
-                      <Button color="primary" onClick={toggleModal}>
-                        Change Password
-                      </Button>
-                      <Modal isOpen={modalOpen} toggle={toggleModal}>
-                        <ModalHeader toggle={toggleModal}>
-                          Change Password
-                        </ModalHeader>
-                        <ModalBody>
-                          <FormGroup>
-                            <Label for="input-current-password">
-                              Current Password
-                            </Label>
-                            <Input
-                              type="password"
-                              name="current_password"
-                              id="input-current-password"
-                              placeholder="Enter your current password"
-                              value={currentPassword}
-                              onChange={handleCurrentPasswordChange}
-                            />
-                          </FormGroup>
-                          <FormGroup>
-                            <Label for="input-new-password">New Password</Label>
-                            <Input
-                              type="password"
-                              name="new_password"
-                              id="input-new-password"
-                              placeholder="Enter your new password"
-                              value={newPassword}
-                              onChange={handleNewPasswordChange}
-                            />
-                          </FormGroup>
-                          <FormGroup>
-                            <Label for="input-confirm-password">
-                              Confirm Password
-                            </Label>
-                            <Input
-                              type="password"
-                              name="confirm_password"
-                              id="input-confirm-password"
-                              placeholder="confirm your password"
-                              value={confirmPassword}
-                              onChange={handleNewConfirmPasswordChange}
-                            />
-                          </FormGroup>
-                        </ModalBody>
-                        <ModalFooter>
-                          <Button
-                            color="primary"
-                            onClick={handlePasswordChange}
-                          >
-                            Submit Password
-                          </Button>{" "}
-                          <Button color="secondary" onClick={toggleModal}>
-                            Cancel
-                          </Button>
-                        </ModalFooter>
-                      </Modal>
-                      <Modal
-                        isOpen={passwordChangeSuccessModalOpen}
-                        toggle={togglePasswordChangeSuccessModal}
-                      >
-                        <ModalHeader toggle={togglePasswordChangeSuccessModal}>
-                          Password Changed Successfully
-                        </ModalHeader>
-                        <ModalBody>
-                          Your password has been changed successfully.
-                        </ModalBody>
-                        <ModalFooter>
-                          <Button
-                            color="primary"
-                            onClick={togglePasswordChangeSuccessModal}
-                          >
-                            Close
-                          </Button>
-                        </ModalFooter>
-                      </Modal>
-                      <Modal
-                        isOpen={passwordChangeFailureModalOpen}
-                        toggle={togglePasswordChangeFailureModal}
-                      >
-                        <ModalHeader toggle={togglePasswordChangeFailureModal}>
-                          Password Change Failed
-                        </ModalHeader>
-                        <ModalBody>
-                          The current password and the new password do not
-                          match. Please try again.
-                        </ModalBody>
-                        <ModalFooter>
-                          <Button
-                            color="primary"
-                            onClick={togglePasswordChangeFailureModal}
-                          >
-                            Close
-                          </Button>
-                        </ModalFooter>
-                      </Modal>
-                    </Col>
-                  </Row>
-
-                  <div className="h5 mt-4">
-                    <i className="ni business_briefcase-24 mr-2" />
-                    Solution Manager - Creative Tim Officer
-                  </div>
-                  <div>
-                    <i className="ni education_hat mr-2" />
-                    University of Computer Science
-                  </div>
-                  <hr className="my-4" />
-
-                  <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                    Show more
-                  </a>
-                </div>
-              </CardBody>
-            </Card>
-          </Col>
           <Col className="order-xl-1" xl="12">
             <Card className="bg-secondary shadow">
               <CardHeader className="bg-white border-0">
@@ -630,14 +516,29 @@ const Profile = () => {
                       <Col lg="6">
                         <FormGroup>
                           <Label for="input-first-name">First Name</Label>
-                          <Input
-                            type="text"
-                            // className="form-control-alternative"
-                            id="input-first-name"
-                            placeholder="Enter your first name"
-                            value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
-                          />
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {firstName}
+                              </span>
+                            ) : (
+                              <Input
+                                type="text"
+                                // className="form-control-alternative"
+                                id="input-first-name"
+                                placeholder="Enter your first name"
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {firstNameError && (
                             <span className="text-danger">
                               {firstNameError}
@@ -653,15 +554,30 @@ const Profile = () => {
                           >
                             Last Name
                           </label>
-                          <Input
-                            // className="form-control-alternative"
-                            defaultValue="Jesse"
-                            id="input-last-name"
-                            placeholder="Last name"
-                            type="text"
-                            value={lastname}
-                            onChange={(e) => setLastName(e.target.value)}
-                          />
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {lastname}
+                              </span>
+                            ) : (
+                              <Input
+                                // className="form-control-alternative"
+                                defaultValue="Jesse"
+                                id="input-last-name"
+                                placeholder="Last name"
+                                type="text"
+                                value={lastname}
+                                onChange={(e) => setLastName(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {lastNameError && (
                             <span className="text-danger">{lastNameError}</span>
                           )}
@@ -671,18 +587,33 @@ const Profile = () => {
                       <Col lg="6">
                         <FormGroup>
                           <Label for="input-gender">Gender</Label>
-                          <Input
-                            type="select"
-                            name="gender"
-                            id="input-gender"
-                            value={gender}
-                            onChange={(e) => setGender(e.target.value)}
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
                           >
-                            <option value="">Select your gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                            <option value="other">Other</option>
-                          </Input>
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {gender}
+                              </span>
+                            ) : (
+                              <Input
+                                type="select"
+                                name="gender"
+                                id="input-gender"
+                                value={gender}
+                                onChange={(e) => setGender(e.target.value)}
+                              >
+                                <option value="">Select your gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                              </Input>
+                            )}
+                          </div>
                           {genderError && (
                             <span className="text-danger">{genderError}</span>
                           )}
@@ -691,30 +622,61 @@ const Profile = () => {
                       <Col lg="6">
                         <FormGroup>
                           <Label for="input-dob">Date of Birth</Label>
-                          <Input
-                            type="date"
-                            name="dob"
-                            id="input-dob"
-                            placeholder="Enter your date of birth"
-                            value={dob}
-                            onChange={handleDobChange}
-                          />
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {dob}
+                              </span>
+                            ) : (
+                              <Input
+                                type="date"
+                                name="dob"
+                                id="input-dob"
+                                placeholder="Enter your date of birth"
+                                value={dob}
+                                onChange={(e) => setDob(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {dobError && (
                             <span className="text-danger">{dobError}</span>
                           )}
                         </FormGroup>
                       </Col>
+
                       <Col lg="6">
                         <FormGroup>
-                          <Label for="input-dob">Date of Joining</Label>
-                          <Input
-                            type="date"
-                            name="dob"
-                            id="input-dob"
-                            placeholder="Enter your date of birth"
-                            value={doj}
-                            onChange={handleDojChange}
-                          />
+                          <Label for="input-doj">Date of Joining</Label>
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {doj}
+                              </span>
+                            ) : (
+                              <Input
+                                type="date"
+                                name="doj"
+                                id="input-doj"
+                                placeholder="Enter your date of joining"
+                                value={doj}
+                                onChange={(e) => setDoj(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {dojError && (
                             <span className="text-danger">{dojError}</span>
                           )}
@@ -722,17 +684,24 @@ const Profile = () => {
                       </Col>
                       <Col lg="6">
                         <FormGroup>
-                          <label htmlFor="languages-known">
-                            Languages Known
-                          </label>
-                          <Select
-                            id="languages-known"
-                            options={myData}
-                            value={selectedOptions}
-                            onChange={handleChange}
-                            isMulti
-                          />
-
+                          <Label for="languages-known">Languages Known</Label>
+                          <div>
+                            {formSubmitted ? (
+                              <span>
+                                {selectedOptions
+                                  .map((option) => option.label)
+                                  .join(", ")}
+                              </span>
+                            ) : (
+                              <Select
+                                id="languages-known"
+                                options={myData}
+                                value={selectedOptions}
+                                onChange={handleChange}
+                                isMulti
+                              />
+                            )}
+                          </div>
                           {nationalityError && (
                             <span className="text-danger">
                               {nationalityError}
@@ -740,17 +709,33 @@ const Profile = () => {
                           )}
                         </FormGroup>
                       </Col>
+
                       <Col lg="6">
                         <FormGroup>
                           <Label for="input-phone-number">Phone Number</Label>
-                          <Input
-                            type="tel"
-                            name="phone_number"
-                            id="input-phone-number"
-                            placeholder="+91"
-                            value={phoneNumber}
-                            onChange={handlePhoneNumberChange}
-                          />
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {phoneNumber}
+                              </span>
+                            ) : (
+                              <Input
+                                type="tel"
+                                name="phone_number"
+                                id="input-phone-number"
+                                placeholder="+91"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {phoneNumberError && (
                             <span className="text-danger">
                               {phoneNumberError}
@@ -766,17 +751,34 @@ const Profile = () => {
                           >
                             Personal Mail
                           </label>
-                          <Input
-                            // className="form-control-alternative"
-                            id="input-email"
-                            placeholder="rishie@example.com"
-                            type="email"
-                            value={personalmail}
-                            onChange={(e) => setPersonalMail(e.target.value)}
-                          />
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {personalmail}
+                              </span>
+                            ) : (
+                              <Input
+                                // className="form-control-alternative"
+                                id="input-email"
+                                placeholder="rishie@example.com"
+                                type="email"
+                                value={personalmail}
+                                onChange={(e) =>
+                                  setPersonalMail(e.target.value)
+                                }
+                              />
+                            )}
+                          </div>
                           {personalMailError && (
                             <span className="text-danger">
-                              {personalMailError}{" "}
+                              {personalMailError}
                             </span>
                           )}
                         </FormGroup>
@@ -796,20 +798,34 @@ const Profile = () => {
                           >
                             Company Mail
                           </label>
-                          <Input
-                            // className="form-control-alternative"
-                            id="input-email"
-                            placeholder="jesse@example.com"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {email != null ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {email}
+                              </span>
+                            ) : (
+                              <Input
+                                id="input-email"
+                                placeholder="jesse@example.com"
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {emailError && (
-                            <span className="text-danger">{emailError} </span>
+                            <span className="text-danger">{emailError}</span>
                           )}
                         </FormGroup>
                       </Col>
-                     
+
                       <Col lg="6">
                         <FormGroup>
                           <label
@@ -818,34 +834,63 @@ const Profile = () => {
                           >
                             Employee ID
                           </label>
-                          <Input
-                            id="input-employee-id"
-                            placeholder="Employee ID"
-                            type="text"
-                            value={employeeId}
-                            onChange={(e) => setEmployeeId(e.target.value)}
-                          />
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {employeeId}
+                              </span>
+                            ) : (
+                              <Input
+                                id="input-employee-id"
+                                placeholder="Employee ID"
+                                type="text"
+                                value={employeeId}
+                                onChange={(e) => setEmployeeId(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {employeeError && (
-                            <span className="text-danger">
-                              {employeeError}{" "}
-                            </span>
+                            <span className="text-danger">{employeeError}</span>
                           )}
                         </FormGroup>
                       </Col>
+
                       <Col lg="6">
                         <FormGroup>
                           <Label for="input-report-to">Report To</Label>
-                          <Input
-                            type="select"
-                            name="report_to"
-                            id="input-report-to"
-                            value={reportTo}
-                            onChange={handleReportToChange}
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
                           >
-                            <option value="">Select...</option>
-                            <option value="client">Client</option>
-                            <option value="manager">Manager</option>
-                          </Input>
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {reportTo}
+                              </span>
+                            ) : (
+                              <Input
+                                type="select"
+                                name="report_to"
+                                id="input-report-to"
+                                value={reportTo}
+                                onChange={handleReportToChange}
+                              >
+                                <option value="">Select...</option>
+                                <option value="client">Client</option>
+                                <option value="manager">Manager</option>
+                              </Input>
+                            )}
+                          </div>
                           {reportToError && (
                             <span className="text-danger">{reportToError}</span>
                           )}
@@ -853,14 +898,34 @@ const Profile = () => {
                         {reportTo === "client" && (
                           <FormGroup>
                             <Label for="input-client-name">Client Name</Label>
-                            <Input
-                              type="text"
-                              name="client_name"
-                              id="input-client-name"
-                              placeholder="Enter client name"
-                              value={clientName}
-                              onChange={(e) => setClientName(e.target.value)}
-                            />
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "baseline",
+                              }}
+                            >
+                              {formSubmitted ? (
+                                <span
+                                  style={{
+                                    verticalAlign: "baseline",
+                                    marginLeft: "5px",
+                                  }}
+                                >
+                                  {clientName}
+                                </span>
+                              ) : (
+                                <Input
+                                  type="text"
+                                  name="client_name"
+                                  id="input-client-name"
+                                  placeholder="Enter client name"
+                                  value={clientName}
+                                  onChange={(e) =>
+                                    setClientName(e.target.value)
+                                  }
+                                />
+                              )}
+                            </div>
                             {clientError && (
                               <span className="text-danger">{clientError}</span>
                             )}
@@ -869,14 +934,34 @@ const Profile = () => {
                         {reportTo === "manager" && (
                           <FormGroup>
                             <Label for="input-manager-name">Manager Name</Label>
-                            <Input
-                              type="text"
-                              name="manager_name"
-                              id="input-manager-name"
-                              placeholder="Enter manager name"
-                              value={managerName}
-                              onChange={(e) => setManagerName(e.target.value)}
-                            />
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "baseline",
+                              }}
+                            >
+                              {formSubmitted ? (
+                                <span
+                                  style={{
+                                    verticalAlign: "baseline",
+                                    marginLeft: "5px",
+                                  }}
+                                >
+                                  {managerName}
+                                </span>
+                              ) : (
+                                <Input
+                                  type="text"
+                                  name="manager_name"
+                                  id="input-manager-name"
+                                  placeholder="Enter manager name"
+                                  value={managerName}
+                                  onChange={(e) =>
+                                    setManagerName(e.target.value)
+                                  }
+                                />
+                              )}
+                            </div>
                             {managerError && (
                               <span className="text-danger">
                                 {managerError}
@@ -884,25 +969,39 @@ const Profile = () => {
                             )}
                           </FormGroup>
                         )}
-                        
                       </Col>
+
                       <Col lg="6">
                         <FormGroup>
                           <Label for="input-experience">
-                            {" "}
                             Current Experience
                           </Label>
-                          <Input
-                            type="text"
-                            name="experience"
-                            id="input-experience"
-                            placeholder="Enter your experience"
-                            value={experience}
-                            onChange={(e) => setExperience(e.target.value)}
-                          />
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {experience}
+                              </span>
+                            ) : (
+                              <Input
+                                type="text"
+                                name="experience"
+                                id="input-experience"
+                                placeholder="Enter your experience"
+                                value={experience}
+                                onChange={(e) => setExperience(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {experienceError && (
                             <span className="text-danger">
-                              {experienceError}{" "}
+                              {experienceError}
                             </span>
                           )}
                         </FormGroup>
@@ -910,274 +1009,276 @@ const Profile = () => {
                       <Col lg="6">
                         <FormGroup>
                           <Label for="input-past-experience">
-                            {" "}
                             Past Experience
                           </Label>
-                          <Input
-                            type="text"
-                            name="past-experience"
-                            id="input-past-experience"
-                            placeholder="Enter your past experience"
-                            value={pastExperience}
-                            onChange={(e) => setPastExperience(e.target.value)}
-                          />
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
+                          >
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {pastExperience}
+                              </span>
+                            ) : (
+                              <Input
+                                type="text"
+                                name="past-experience"
+                                id="input-past-experience"
+                                placeholder="Enter your past experience"
+                                value={pastExperience}
+                                onChange={(e) =>
+                                  setPastExperience(e.target.value)
+                                }
+                              />
+                            )}
+                          </div>
                           {pastExperienceError && (
                             <span className="text-danger">
-                              {pastExperienceError}{" "}
+                              {pastExperienceError}
                             </span>
                           )}
                         </FormGroup>
                       </Col>
                     </Row>
 
-                    <Row>
-                      {/* <Col lg="8">
-                        <Button color="primary" onClick={toggleModal}>
-                          Change Password
-                        </Button>
-                        <Modal isOpen={modalOpen} toggle={toggleModal}>
-                          <ModalHeader toggle={toggleModal}>
-                            Change Password
-                          </ModalHeader>
-                          <ModalBody>
-                            <FormGroup>
-                              <Label for="input-current-password">
-                                Current Password
-                              </Label>
-                              <Input
-                                type="password"
-                                name="current_password"
-                                id="input-current-password"
-                                placeholder="Enter your current password"
-                                value={currentPassword}
-                                onChange={handleCurrentPasswordChange}
-                              />
-                            </FormGroup>
-                            <FormGroup>
-                              <Label for="input-new-password">
-                                New Password
-                              </Label>
-                              <Input
-                                type="password"
-                                name="new_password"
-                                id="input-new-password"
-                                placeholder="Enter your new password"
-                                value={newPassword}
-                                onChange={handleNewPasswordChange}
-                              />
-                            </FormGroup>
-                            <FormGroup>
-                              <Label for="input-confirm-password">
-                                Confirm Password
-                              </Label>
-                              <Input
-                                type="password"
-                                name="confirm_password"
-                                id="input-confirm-password"
-                                placeholder="confirm your password"
-                                value={confirmPassword}
-                                onChange={handleNewConfirmPasswordChange}
-                              />
-                            </FormGroup>
-                          </ModalBody>
-                          <ModalFooter>
-                            <Button
-                              color="primary"
-                              onClick={handlePasswordChange}
-                            >
-                              Submit Password
-                            </Button>{" "}
-                            <Button color="secondary" onClick={toggleModal}>
-                              Cancel
-                            </Button>
-                          </ModalFooter>
-                        </Modal>
-                        <Modal
-                          isOpen={passwordChangeSuccessModalOpen}
-                          toggle={togglePasswordChangeSuccessModal}
-                        >
-                          <ModalHeader
-                            toggle={togglePasswordChangeSuccessModal}
-                          >
-                            Password Changed Successfully
-                          </ModalHeader>
-                          <ModalBody>
-                            Your password has been changed successfully.
-                          </ModalBody>
-                          <ModalFooter>
-                            <Button
-                              color="primary"
-                              onClick={togglePasswordChangeSuccessModal}
-                            >
-                              Close
-                            </Button>
-                          </ModalFooter>
-                        </Modal>
-                        <Modal
-                          isOpen={passwordChangeFailureModalOpen}
-                          toggle={togglePasswordChangeFailureModal}
-                        >
-                          <ModalHeader
-                            toggle={togglePasswordChangeFailureModal}
-                          >
-                            Password Change Failed
-                          </ModalHeader>
-                          <ModalBody>
-                            The current password and the new password do not
-                            match. Please try again.
-                          </ModalBody>
-                          <ModalFooter>
-                            <Button
-                              color="primary"
-                              onClick={togglePasswordChangeFailureModal}
-                            >
-                              Close
-                            </Button>
-                          </ModalFooter>
-                        </Modal>
-                      </Col> */}
-                    </Row>
+                    <Row></Row>
                   </div>
                   <hr className="my-4" />
 
                   <div className="pl-lg-4">
                     <Label>Skills</Label>
                     <Row
-                      className="justify-content-md-between "
+                      className="justify-content-md-between"
                       style={{ alignItems: "center" }}
                     >
                       {skills.map((skill, index) => (
                         <>
-                          <Col lg="3">
-                            <div>
-                              <Autocomplete
-                                disablePortal
-                                id={`combo-box-demo-${index}`}
-                                options={top100Films}
-                                sx={{ width: "150px", height: "50px" }}
-                                value={selectedTechnologies[index]}
-                                onChange={handleTechnologyChange(index)}
-                                onBlur={() => validateTechnology(index)}
-                                getOptionLabel={(option) => option.label}
-                                renderInput={(params) => (
-                                  <TextField
-                                    {...params}
-                                    label="Technology Name"
-                                    error={!!technologyErrors[index]}
-                                    helperText={technologyErrors[index]}
+                          <Col lg="4">
+                            <FormGroup>
+                              <Label for={`technology-autocomplete-${index}`}>
+                                Technology Name
+                              </Label>
+                              <div style={{ marginRight: "50px" }}>
+                                {formSubmitted ? (
+                                  <span className="preview">
+                                    {selectedTechnologies[index]
+                                      ? selectedTechnologies[index].label
+                                      : ""}
+                                  </span>
+                                ) : (
+                                  <Autocomplete
+                                    disablePortal
+                                    id={`technology-autocomplete-${index}`}
+                                    options={top100Films}
+                                    value={selectedTechnologies[index]}
+                                    sx={{ width: "200px", height: "50px" }}
+                                    onChange={handleTechnologyChange(index)}
+                                    onBlur={() => validateTechnology(index)}
+                                    getOptionLabel={(option) => option.label}
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        label="Technology Name"
+                                        error={!!technologyErrors[index]}
+                                        helperText={technologyErrors[index]}
+                                      />
+                                    )}
                                   />
                                 )}
-                              />
+                              </div>
+                            </FormGroup>
+                          </Col>
+
+                          <Col lg="4">
+                            <FormGroup>
+                              <div>
+                                <Label for={`experience-autocomplete-${index}`}>
+                                  Experience
+                                </Label>
+                                <div style={{ marginRight: "50px" }}>
+                                  {formSubmitted ? (
+                                    <span className="preview">
+                                      {selectedExperiences[index]
+                                        ? selectedExperiences[index].label
+                                        : ""}
+                                    </span>
+                                  ) : (
+                                    <Autocomplete
+                                      disablePortal
+                                      id={`experience-autocomplete-${index}`}
+                                      options={experiences}
+                                      value={selectedExperiences[index]}
+                                      sx={{ width: "150px", height: "50px" }}
+                                      onChange={handleExperiencedChange(index)}
+                                      onBlur={() => validateExperience(index)}
+                                      getOptionLabel={(option) => option.label}
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          label="Experience"
+                                          error={!!experienceErrors[index]}
+                                          helperText={experienceErrors[index]}
+                                        />
+                                      )}
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                            </FormGroup>
+                          </Col>
+
+                          <Col lg="4">
+                            <FormGroup>
+                              <div>
+                                <Label for={`expertise-autocomplete-${index}`}>
+                                  Expertise
+                                </Label>
+                                <div style={{ marginRight: "50px" }}>
+                                  {formSubmitted ? (
+                                    <span className="preview">
+                                      {selectedExpertises[index]
+                                        ? selectedExpertises[index].label
+                                        : ""}
+                                    </span>
+                                  ) : (
+                                    <Autocomplete
+                                      disablePortal
+                                      id={`expertise-autocomplete-${index}`}
+                                      options={expertised}
+                                      value={selectedExpertises[index]}
+                                      sx={{ width: "150px", height: "50px" }}
+                                      onChange={handleExpertiseChange(index)}
+                                      onBlur={() => validateExpertise(index)}
+                                      getOptionLabel={(option) => option.label}
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          label="Expertise"
+                                          error={!!expertiseErrors[index]}
+                                          helperText={expertiseErrors[index]}
+                                        />
+                                      )}
+                                    />
+                                  )}
+                                </div>
+                              </div>
+                            </FormGroup>
+                          </Col>
+                          {/* "+" button */}
+                          {!formSubmitted && (
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                marginBottom: "25px",
+                              }}
+                            >
+                              <Button
+                                style={{
+                                  height: "30px",
+                                  width: "30px",
+                                  float: "right",
+                                  position: "absolute",
+                                  alignItems: "center",
+                                  right: "70px",
+                                }}
+                                size="sm"
+                                color="success"
+                                onClick={handleAddSkill}
+                              >
+                                +
+                              </Button>
                             </div>
-                          </Col>
+                          )}
 
-                          <Col lg="3">
-                            <Autocomplete
-                              disablePortal
-                              id={`experience-autocomplete-${index}`}
-                              options={experiences}
-                              sx={{ width: "150px", height: "50px" }}
-                              value={selectedExperiences[index]}
-                              onChange={handleExperiencedChange(index)}
-                              onBlur={() => validateExperience(index)}
-                              getOptionLabel={(option) => option.label}
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Experience"
-                                  error={!!experienceErrors[index]}
-                                  helperText={experienceErrors[index]}
-                                />
-                              )}
-                            />
-                          </Col>
+                          <br />
+                          <br />
 
-                          <Col lg="3">
-                            <Autocomplete
-                              disablePortal
-                              id={`expertise-autocomplete-${index}`}
-                              options={expertised}
-                              sx={{ width: "150px", height: "50px" }}
-                              value={selectedExpertises[index]}
-                              onChange={handleExpertiseChange(index)}
-                              onBlur={() => validateExpertise(index)}
-                              getOptionLabel={(option) => option.label}
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  label="Expertise"
-                                  error={!!expertiseErrors[index]}
-                                  helperText={expertiseErrors[index]}
-                                />
+                          {/* "-" button */}
+                          {!formSubmitted && skills.length > 1 && (
+                            <Button
+                              style={{
+                                height: "30px",
+                                width: "30px",
+                                position: "absolute",
+                                right: "10px",
+                                float: "right",
+                                alignItems: "center",
+                              }}
+                              size="sm"
+                              color="danger"
+                              onClick={() => handleRemoveSkill(index)}
+                            >
+                              -
+                            </Button>
+                          )}
+
+                          {/* {formSubmitted ? null : (
+                            <Button
+                              size="sm"
+                              className="text-center"
+                              style={{
+                                height: "30px",
+                                width: "30px",
+                                alignItems: "center",
+                                position: "absolute",
+                                right: "70px",
+                              }}
+                              id={index}
+                              color="danger"
+                              onClick={() => handleRemoveSkill(index)}
+                            >
+                              -
+                            </Button>
+                          )}
+
+                          {formSubmitted ? null : (
+                            <>
+                              {skills.length === 0 ? (
+                                <Button
+                                  style={{
+                                    height: " 30px",
+                                    width: "30px",
+                                    float: "right",
+                                    right: "50px",
+                                    alignItems: "center",
+                                  }}
+                                  size="sm"
+                                  color="success"
+                                  onClick={handleAddSkill}
+                                >
+                                  +
+                                </Button>
+                              ) : (
+                                <Button
+                                  style={{
+                                    height: " 30px",
+                                    width: "30px",
+                                    float: "right",
+                                    position: "absolute",
+                                    right: "20px",
+                                    alignItems: "center",
+                                  }}
+                                  size="sm"
+                                  color="success"
+                                  onClick={handleAddSkill}
+                                >
+                                  +
+                                </Button>
                               )}
-                            />
-                          </Col>
-                          <Button
-                            size="sm"
-                            className="text-center"
-                            style={{
-                              height: "30px",
-                              width: "30px",
-                              alignItems: "center",
-                              right: "-20px",
-                            }}
-                            id={index}
-                            color="danger"
-                            onClick={() => handleRemoveSkill(index)}
-                          >
-                            -
-                          </Button>
-                          {/* <Button
-                            style={{
-                              height: " 30px",
-                              width: "30px",
-                              float: "right",
-                              right: "-15px",
-                              alignItems: "center",
-                            }}
-                            size="sm"
-                            color="success"
-                            onClick={handleAddSkill}
-                          >
-                            +
-                          </Button> */}
+                            </>
+                          )} */}
+                          {/* Add your button and spacing components here */}
                           <br />
                           <br />
                           <br />
                         </>
                       ))}
                     </Row>
-                    {skills.length == 0 ? (
-                      <Button
-                        style={{
-                          height: " 30px",
-                          width: "30px",
-                          float: "left",
-                          right: "0px",
-                          alignItems: "center",
-                        }}
-                        size="sm"
-                        color="success"
-                        onClick={handleAddSkill}
-                      >
-                        +
-                      </Button>
-                    ) : (
-                      <Button
-                        style={{
-                          height: " 30px",
-                          width: "30px",
-                          float: "right",
-                          right: "2px",
-                          alignItems: "center",
-                        }}
-                        size="sm"
-                        color="success"
-                        onClick={handleAddSkill}
-                      >
-                        +
-                      </Button>
-                    )}
                   </div>
                   <br />
                   <hr className="my-4" />
@@ -1189,21 +1290,31 @@ const Profile = () => {
                     <Row>
                       <Col md="12">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-address"
+                          <Label for="input-address">Address</Label>
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
                           >
-                            Address
-                          </label>
-                          <Input
-                            // className="form-control-alternative"
-                            defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
-                            id="input-address"
-                            placeholder="Enter your current address"
-                            type="text"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                          />
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {address}
+                              </span>
+                            ) : (
+                              <Input
+                                // className="form-control-alternative"
+                                defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
+                                id="input-address"
+                                placeholder="Enter your current address"
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {addressError && (
                             <span className="text-danger">{addressError}</span>
                           )}
@@ -1213,21 +1324,30 @@ const Profile = () => {
                     <Row>
                       <Col lg="4">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-city"
+                          <Label for="input-city">City</Label>
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
                           >
-                            City
-                          </label>
-                          <Input
-                            // className="form-control-alternative"
-
-                            id="input-city"
-                            placeholder="Enter your city"
-                            type="text"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
-                          />
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {city}
+                              </span>
+                            ) : (
+                              <Input
+                                // className="form-control-alternative"
+                                id="input-city"
+                                placeholder="Enter your city"
+                                type="text"
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {cityError && (
                             <span className="text-danger">{cityError}</span>
                           )}
@@ -1235,43 +1355,63 @@ const Profile = () => {
                       </Col>
                       <Col lg="4">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-country"
+                          <Label for="input-country">Country</Label>
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
                           >
-                            Country
-                          </label>
-                          <Input
-                            // className="form-control-alternative"
-                            defaultValue="United States"
-                            id="input-country"
-                            placeholder="Country"
-                            type="text"
-                            value={country}
-                            onChange={(e) => setCountry(e.target.value)}
-                          />
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {country}
+                              </span>
+                            ) : (
+                              <Input
+                                // className="form-control-alternative"
+                                defaultValue="United States"
+                                id="input-country"
+                                placeholder="Country"
+                                type="text"
+                                value={country}
+                                onChange={(e) => setCountry(e.target.value)}
+                              />
+                            )}
+                          </div>
                           {countryError && (
                             <span className="text-danger">{countryError}</span>
                           )}
                         </FormGroup>
                       </Col>
-
                       <Col lg="4">
                         <FormGroup>
-                          <label
-                            className="form-control-label"
-                            htmlFor="input-country"
+                          <Label for="input-postal-code">Postal code</Label>
+                          <div
+                            style={{ display: "flex", alignItems: "baseline" }}
                           >
-                            Postal code
-                          </label>
-                          <Input
-                            // className="form-control-alternative"
-                            id="input-postal-code"
-                            placeholder="Postal code"
-                            type="number"
-                            value={postalCode}
-                            onChange={handlePostalCodeChange}
-                          />
+                            {formSubmitted ? (
+                              <span
+                                style={{
+                                  verticalAlign: "baseline",
+                                  marginLeft: "5px",
+                                }}
+                              >
+                                {postalCode}
+                              </span>
+                            ) : (
+                              <Input
+                                // className="form-control-alternative"
+                                id="input-postal-code"
+                                placeholder="Postal code"
+                                type="number"
+                                value={postalCode}
+                                onChange={handlePostalCodeChange}
+                              />
+                            )}
+                          </div>
+
                           {postalCodeError && (
                             <span className="text-danger">
                               {postalCodeError}
@@ -1286,22 +1426,25 @@ const Profile = () => {
                   <h6 className="heading-small text-muted mb-4">About me</h6>
                   <div className="pl-lg-4">
                     <FormGroup>
-                      <label>About Me</label>
-                      <Input
-                        // className="form-control-alternative"
-                        placeholder="A few words about you ..."
-                        rows="4"
-                        defaultValue="A beautiful Dashboard for Bootstrap 4. It is Free and
-                        Open Source."
-                        type="textarea"
-                        value={about_me}
-                        onChange={(e) => setAboutMe(e.target.value)}
-                      />
+                      {formSubmitted ? (
+                        <span>{about_me}</span>
+                      ) : (
+                        <Input
+                          // className="form-control-alternative"
+                          placeholder="A few words about you ..."
+                          rows="4"
+                          defaultValue="A beautiful Dashboard for Bootstrap 4. It is Free and Open Source."
+                          type="textarea"
+                          value={about_me}
+                          onChange={(e) => setAboutMe(e.target.value)}
+                        />
+                      )}
                       {aboutMeError && (
                         <span className="text-danger">{aboutMeError}</span>
                       )}
                     </FormGroup>
                   </div>
+
                   <Modal isOpen={successModalOpen} toggle={toggleSuccessModal}>
                     <ModalHeader toggle={toggleSuccessModal}>
                       Success
@@ -1314,6 +1457,20 @@ const Profile = () => {
                         Close
                       </Button>
                     </ModalFooter>
+                  </Modal>
+                  <Modal
+                    isOpen={failureModalOpen}
+                    toggle={() => setFailureModalOpen(false)}
+                  >
+                    <ModalHeader toggle={() => setFailureModalOpen(false)}>
+                      Form Submission Failed
+                    </ModalHeader>
+                    <ModalBody>
+                      <p>
+                        Please check the fields and correct any validation
+                        errors before submitting again.
+                      </p>
+                    </ModalBody>
                   </Modal>
                   <div className="text-center">
                     <Button type="submit" color="primary">
