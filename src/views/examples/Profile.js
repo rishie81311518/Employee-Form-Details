@@ -30,6 +30,13 @@ const Profile = () => {
 
   const [selectedOptions, setSelectedOptions] = useState([]);
 
+  const getFormData = () => {
+    const formData = localStorage.getItem("formData");
+    return formData ? JSON.parse(formData) : null;
+  };
+
+  const formData = getFormData();
+
   const myData = [
     { label: "Telugu", value: 1 },
     { label: "Hindi", value: 2 },
@@ -187,23 +194,54 @@ const Profile = () => {
     // ... rest of the movies
   ];
 
+  // const [selectedTechnologies, setSelectedTechnologies] = useState(
+  //   Array.from({ length: skills.length }, () => null)
+  // );
+
+  const generateSelectedTechnologiesFromFormData = (formData) => {
+    return Array.from({ length: skills.length }, (_, index) =>
+      formData ? formData.selectedTechnologies[index] : null
+    );
+  };
+
+  const generatedSelectedTechnologies =
+    generateSelectedTechnologiesFromFormData(formData);
   const [selectedTechnologies, setSelectedTechnologies] = useState(
-    Array.from({ length: skills.length }, () => null)
+    generatedSelectedTechnologies
   );
+
+  const generateSelectedExpertisesFromFormData = (formData) => {
+    return Array.from({ length: skills.length }, (_, index) =>
+      formData ? formData.selectedExpertises[index] : null
+    );
+  };
+
+  const generatedSelectedExpertises =
+    generateSelectedExpertisesFromFormData(formData);
+  const [selectedExpertises, setSelectedExpertises] = useState(
+    generatedSelectedExpertises
+  );
+
   const [technologyErrors, setTechnologyErrors] = useState(
     Array.from({ length: skills.length }, () => "")
   );
 
+  const generateSelectedExperiencesFromFormData = (formData) => {
+    return Array.from({ length: skills.length }, (_, index) =>
+      formData ? formData.selectedExperiences[index] : null
+    );
+  };
+
+  const generatedSelectedExperiences =
+    generateSelectedExperiencesFromFormData(formData);
   const [selectedExperiences, setSelectedExperiences] = useState(
-    Array.from({ length: skills.length }, () => null)
+    generatedSelectedExperiences
   );
+
   const [experienceErrors, setExperienceErrors] = useState(
     Array.from({ length: skills.length }, () => "")
   );
 
-  const [selectedExpertises, setSelectedExpertises] = useState(
-    Array.from({ length: skills.length }, () => null)
-  );
   const [expertiseErrors, setExpertiseErrors] = useState(
     Array.from({ length: skills.length }, () => "")
   );
@@ -227,15 +265,43 @@ const Profile = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [gender, setGender] = useState("");
   const [firstName, setFirstName] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setNewConfirmPassword] = useState("");
-  // const [nationality, setNationality] = useState("");
-  const [passwordChangeSuccessModalOpen, setPasswordChangeSuccessModalOpen] =
-    useState(false);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [passwordChangeFailureModalOpen, setPasswordChangeFailureModalOpen] =
-    useState(false);
+
+  const setFormData = (formData) => {
+    if (formData) {
+      setPastExperience(formData.pastExperience || "");
+      setExperience(formData.experience || "");
+      setClientName(formData.clientName || "");
+      setManagerName(formData.managerName || "");
+      setAboutMe(formData.about_me || "");
+      setPostalCode(formData.postalCode || "");
+      setCountry(formData.country || "");
+      setCity(formData.city || "");
+      setAddress(formData.address || "");
+      setLastName(formData.lastname || "");
+      setPersonalMail(formData.personalmail || "");
+      setDoj(formData.doj || "");
+      setDob(formData.dob || "");
+      setEmail(formData.email || "");
+      setEmployeeId(formData.employeeId || "");
+      setReportTo(formData.reportTo || "");
+      setPhoneNumber(formData.phoneNumber || "");
+      setGender(formData.gender || "");
+      setFirstName(formData.firstName || "");
+      setSelectedTechnologies(
+        generateSelectedTechnologiesFromFormData(formData)
+      );
+      setSelectedExperiences(generateSelectedExperiencesFromFormData(formData));
+      setSelectedExpertises(generateSelectedExpertisesFromFormData(formData));
+    }
+  };
+
+  const getStoredFormData = () => {
+    const storedFormData = localStorage.getItem("formData");
+    return storedFormData ? JSON.parse(storedFormData) : null;
+  };
+
+  const storedFormData = getStoredFormData();
 
   const [firstNameError, setFirstNameError] = useState("");
   const [pastExperienceError, setPastExperienceError] = useState("");
@@ -285,14 +351,6 @@ const Profile = () => {
     return true;
   };
 
-  const handleCurrentPasswordChange = (e) => {
-    setCurrentPassword(e.target.value);
-  };
-
-  const handleNewPasswordChange = (e) => {
-    setNewPassword(e.target.value);
-  };
-
   const handlePhoneNumberChange = (e) => {
     const inputPhoneNumber = e.target.value;
     // Remove any non-numeric characters from the input
@@ -321,12 +379,6 @@ const Profile = () => {
     }
   };
 
-  const [currentRow, setCurrentRow] = useState(null);
-
-  const handleNewConfirmPasswordChange = (e) => {
-    setNewConfirmPassword(e.target.value);
-  };
-
   const handleSkillChange = (index, field, value) => {
     const updatedSkills = [...skills];
     updatedSkills[index][field] = value;
@@ -336,36 +388,18 @@ const Profile = () => {
   const handleAddSkill = () => {
     setSkills([...skills, { technology: "", experience: "", expertise: "" }]);
   };
+  const [holdValue, setHoldValue] = useState(1);
+  useEffect(() => {
+    // console.log(skills.length);
+    setHoldValue(skills.length + 1);
+    console.log(holdValue);
+    console.log(skills.length);
+  }, [skills]);
 
   const handleRemoveSkill = (index) => {
     const updatedSkills = [...skills];
     updatedSkills.splice(index, 1);
     setSkills(updatedSkills);
-  };
-
-  const handlePasswordChange = () => {
-    // Check if current and new passwords match
-    if (currentPassword !== newPassword || newPassword !== confirmPassword) {
-      // Passwords match, show popup for successful password change
-      togglePasswordChangeSuccessModal();
-      // Clear the current and new passwords
-      setCurrentPassword("");
-      setNewPassword("");
-      setNewConfirmPassword("");
-    } else {
-      // Passwords don't match, show popup for failure
-      togglePasswordChangeFailureModal();
-    }
-    // Close the modal
-    toggleModal();
-  };
-
-  const togglePasswordChangeSuccessModal = () => {
-    setPasswordChangeSuccessModalOpen(!passwordChangeSuccessModalOpen);
-  };
-
-  const togglePasswordChangeFailureModal = () => {
-    setPasswordChangeFailureModalOpen(!passwordChangeFailureModalOpen);
   };
 
   const handleReportToChange = (e) => {
@@ -378,10 +412,15 @@ const Profile = () => {
     setManagerName("");
   };
 
+  // const saveFormData = (formData) => {
+  //   localStorage.setItem('formData', JSON.stringify(formData));
+  // };
+
   // Function to handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const isFirstLogin = !localStorage.getItem("isLoggedIn");
     // Validate all fields
 
     const isDobValid = validateField(dob, setDobError);
@@ -479,9 +518,16 @@ const Profile = () => {
       isReportToValid &&
       isPhoneNumberValid &&
       isGenderValid &&
-      isFirstNameValid
-      // (isClientValid || isManagerValid)
+      isFirstNameValid &&
+      (isClientValid || isManagerValid)
     ) {
+      const formDataToStore = { ...formData };
+      // Store the formData for first login for employee
+      if (isFirstLogin && formData && formData.role === "employee") {
+        localStorage.setItem("isLoggedIn", true);
+        localStorage.setItem("formData", JSON.stringify(formDataToStore));
+      }
+      setFormData(formData);
       setFormSubmitted(true);
       console.log("Form submitted successfully!");
       toggleSuccessModal();
@@ -523,6 +569,7 @@ const Profile = () => {
                               <span
                                 style={{
                                   verticalAlign: "baseline",
+                                  color: "#8898aa",
                                   marginLeft: "5px",
                                 }}
                               >
@@ -561,6 +608,7 @@ const Profile = () => {
                               <span
                                 style={{
                                   verticalAlign: "baseline",
+                                  color: "#8898aa",
                                   marginLeft: "5px",
                                 }}
                               >
@@ -593,6 +641,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -628,6 +677,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -660,6 +710,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -687,7 +738,7 @@ const Profile = () => {
                           <Label for="languages-known">Languages Known</Label>
                           <div>
                             {formSubmitted ? (
-                              <span>
+                              <span style={{ color: "#8898aa" }}>
                                 {selectedOptions
                                   .map((option) => option.label)
                                   .join(", ")}
@@ -719,6 +770,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -757,6 +809,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -804,6 +857,7 @@ const Profile = () => {
                             {email != null ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -840,6 +894,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -885,9 +940,21 @@ const Profile = () => {
                                 value={reportTo}
                                 onChange={handleReportToChange}
                               >
-                                <option value="">Select...</option>
-                                <option value="client">Client</option>
-                                <option value="manager">Manager</option>
+                                <option value="" style={{ color: "#8898aa" }}>
+                                  Select...
+                                </option>
+                                <option
+                                  value="client"
+                                  style={{ color: "#8898aa" }}
+                                >
+                                  Client
+                                </option>
+                                <option
+                                  value="manager"
+                                  style={{ color: "#8898aa" }}
+                                >
+                                  Manager
+                                </option>
                               </Input>
                             )}
                           </div>
@@ -907,6 +974,7 @@ const Profile = () => {
                               {formSubmitted ? (
                                 <span
                                   style={{
+                                    color: "#8898aa",
                                     verticalAlign: "baseline",
                                     marginLeft: "5px",
                                   }}
@@ -943,6 +1011,7 @@ const Profile = () => {
                               {formSubmitted ? (
                                 <span
                                   style={{
+                                    color: "#8898aa",
                                     verticalAlign: "baseline",
                                     marginLeft: "5px",
                                   }}
@@ -982,6 +1051,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -1017,6 +1087,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -1055,7 +1126,7 @@ const Profile = () => {
                       className="justify-content-md-between"
                       style={{ alignItems: "center" }}
                     >
-                      {skills.map((skill, index) => (
+                      {skills.map((skill, index, arr) => (
                         <>
                           <Col lg="4">
                             <FormGroup>
@@ -1064,7 +1135,7 @@ const Profile = () => {
                               </Label>
                               <div style={{ marginRight: "50px" }}>
                                 {formSubmitted ? (
-                                  <span className="preview">
+                                  <span className="preview" style={{ color: "#8898aa"}}>
                                     {selectedTechnologies[index]
                                       ? selectedTechnologies[index].label
                                       : ""}
@@ -1105,6 +1176,15 @@ const Profile = () => {
                                       {selectedExperiences[index]
                                         ? selectedExperiences[index].label
                                         : ""}
+                                      <span
+                                        style={{
+                                          color: "#8898aa",
+                                          verticalAlign: "baseline",
+                                          marginLeft: "5px",
+                                        }}
+                                      >
+                                        (Submitted)
+                                      </span>
                                     </span>
                                   ) : (
                                     <Autocomplete
@@ -1143,6 +1223,15 @@ const Profile = () => {
                                       {selectedExpertises[index]
                                         ? selectedExpertises[index].label
                                         : ""}
+                                      <span
+                                        style={{
+                                          color: "#8898aa",
+                                          verticalAlign: "baseline",
+                                          marginLeft: "5px",
+                                        }}
+                                      >
+                                        (Submitted)
+                                      </span>
                                     </span>
                                   ) : (
                                     <Autocomplete
@@ -1169,115 +1258,61 @@ const Profile = () => {
                             </FormGroup>
                           </Col>
                           {/* "+" button */}
-                          {!formSubmitted && (
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "flex-end",
-                                marginBottom: "25px",
-                              }}
-                            >
-                              <Button
-                                style={{
-                                  height: "30px",
-                                  width: "30px",
-                                  float: "right",
-                                  position: "absolute",
-                                  alignItems: "center",
-                                  right: "70px",
-                                }}
-                                size="sm"
-                                color="success"
-                                onClick={handleAddSkill}
-                              >
-                                +
-                              </Button>
-                            </div>
-                          )}
 
                           <br />
                           <br />
 
                           {/* "-" button */}
-                          {!formSubmitted && skills.length > 1 && (
-                            <Button
-                              style={{
-                                height: "30px",
-                                width: "30px",
-                                position: "absolute",
-                                right: "10px",
-                                float: "right",
-                                alignItems: "center",
-                              }}
-                              size="sm"
-                              color="danger"
-                              onClick={() => handleRemoveSkill(index)}
-                            >
-                              -
-                            </Button>
-                          )}
+                          {!formSubmitted &&
+                            skills.length > 1 &&
+                            index !== arr.length - 1 && (
+                              <Button
+                                style={{
+                                  height: "30px",
+                                  width: "30px",
+                                  position: "absolute",
+                                  right: "60px",
+                                  float: "right",
+                                  alignItems: "center",
+                                }}
+                                size="sm"
+                                color="danger"
+                                onClick={() => handleRemoveSkill(index)}
+                              >
+                                -
+                              </Button>
+                            )}
 
-                          {/* {formSubmitted ? null : (
-                            <Button
-                              size="sm"
-                              className="text-center"
-                              style={{
-                                height: "30px",
-                                width: "30px",
-                                alignItems: "center",
-                                position: "absolute",
-                                right: "70px",
-                              }}
-                              id={index}
-                              color="danger"
-                              onClick={() => handleRemoveSkill(index)}
-                            >
-                              -
-                            </Button>
-                          )}
-
-                          {formSubmitted ? null : (
-                            <>
-                              {skills.length === 0 ? (
-                                <Button
-                                  style={{
-                                    height: " 30px",
-                                    width: "30px",
-                                    float: "right",
-                                    right: "50px",
-                                    alignItems: "center",
-                                  }}
-                                  size="sm"
-                                  color="success"
-                                  onClick={handleAddSkill}
-                                >
-                                  +
-                                </Button>
-                              ) : (
-                                <Button
-                                  style={{
-                                    height: " 30px",
-                                    width: "30px",
-                                    float: "right",
-                                    position: "absolute",
-                                    right: "20px",
-                                    alignItems: "center",
-                                  }}
-                                  size="sm"
-                                  color="success"
-                                  onClick={handleAddSkill}
-                                >
-                                  +
-                                </Button>
-                              )}
-                            </>
-                          )} */}
-                          {/* Add your button and spacing components here */}
                           <br />
                           <br />
                           <br />
                         </>
                       ))}
+                      {!formSubmitted && (
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            marginBottom: "25px",
+                          }}
+                        >
+                          <Button
+                            style={{
+                              height: "30px",
+                              width: "30px",
+                              float: "right",
+                              position: "absolute",
+                              alignItems: "center",
+                              right: "69px",
+                            }}
+                            size="sm"
+                            color="success"
+                            onClick={handleAddSkill}
+                          >
+                            +
+                          </Button>
+                        </div>
+                      )}
                     </Row>
                   </div>
                   <br />
@@ -1297,6 +1332,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -1331,6 +1367,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -1362,6 +1399,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
@@ -1394,6 +1432,7 @@ const Profile = () => {
                             {formSubmitted ? (
                               <span
                                 style={{
+                                  color: "#8898aa",
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
                                 }}
