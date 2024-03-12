@@ -1,9 +1,8 @@
-import Profile from "views/examples/Profile.js";
 import Admin from "views/examples/Admin.js";
 import Login from "views/examples/Login.js";
+import Profile from "views/examples/Profile.js";
 
 var routes = [
-  
   {
     path: "/dashboard",
     name: "Admin Dashboard",
@@ -19,7 +18,6 @@ var routes = [
     component: <Profile />,
     layout: "/admin",
   },
-
 
   {
     path: "/login",
