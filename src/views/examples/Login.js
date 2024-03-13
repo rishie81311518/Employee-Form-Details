@@ -1,4 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import axios from "axios";
+import useUser from "./UserProvider.js";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -16,38 +18,57 @@ import {
 import img1 from "../../assets/img/brand/Web-Synergies-Transparent-Logo-High-resolution-1.png";
 
 const Login = () => {
-  useEffect(() => {
-    // Store the email "admin@gmail.com" in local storage
-  }, []);
   const [values, setValues] = useState({
-    email: "",
+    loginId: "",
     password: "",
   });
-  const [error, setError] = useState(null);
 
+  //const { setUserData } = useUser();
+  const { setLoggedUserData} = useUser();
+
+
+  //const [loggedUserData, setLoggedUserData] = useState({});
+  //const [allEmployees, setAllEmployees] = useState({});
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const { email, password } = values;
-    console.log(values,email,password);
-    //const storedEmail = localStorage.getItem("adminEmail");
-    // Check if the email and password match the hardcoded values
-    if (email === "admin@gmail.com" && password === "password") {
-     
-      localStorage.clear();
-      // Navigate to the admin dashboard if the login is successful
-      localStorage.setItem("currentLoginUserEmail", values.email);
-      navigate("/admin/dashboard");
-    } else if (email === "employee@gmail.com" && password === "123456") {
-      localStorage.clear();
-      // Navigate to the admin dashboard if the login is successful
-      localStorage.setItem("currentLoginUserEmail", values.email);
-      // Navigate to the employee profile if the login is successful
-      navigate("/admin/user-profile");
-    } else {
-      // Set an error message if the login fails
-      setError("Invalid email or password. Please try again.");
+
+    try {
+      const response = await axios.post("https://localhost:7221/login", {
+        loginId: values.loginId,
+        password: values.password,
+      });
+      console.log(response);
+      
+      const userData = response.data;
+      
+      console.log("Response data:", userData);
+
+
+      if (userData.status === 1) {
+        debugger;
+   console.log("setting loggged user data", userData.data);
+        setLoggedUserData(userData.data); 
+        console.log("user login sucessfuly");
+       
+        
+        if ( userData.data && userData.data.role_id === 1) {
+          console.log('valid user');
+          navigate("/admin/user-profile");
+        }
+        else if (  userData.data &&  userData.data.role_id > 1) {
+          navigate("/admin/dashboard");
+        }
+      }
+      
+      else {
+        setError("Invalid email or password. please try again");
+      }
+    } catch (error) {
+      console.error("Error fetching user");
+      setError("Invalid email or password. please try again");
     }
   };
 
@@ -74,11 +95,11 @@ const Login = () => {
                 </InputGroupAddon>
                 <Input
                   placeholder="Enter your email"
-                  type="email"
-                  autoComplete="new-email"
-                  value={values.email}
+                  type="text"
+                  //autoComplete="new-email"
+                  value={values.loginId}
                   onChange={(e) =>
-                    setValues({ ...values, email: e.target.value })
+                    setValues({ ...values, loginId: e.target.value })
                   }
                 />
               </InputGroup>

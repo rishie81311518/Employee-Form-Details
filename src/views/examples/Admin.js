@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 //Date Picker Imports - these should just be in your Context Provider
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import axios from "axios";
 //MRT Imports
 import {
   MRT_GlobalFilterTextField,
@@ -33,11 +34,12 @@ import {
 import { Delete, Edit, Visibility } from "@mui/icons-material";
 
 //Mock Data
-import intialData from "../examples/makeData.js";
-console.log(intialData);
+import intialData from "../examples/makeData.js"
 
 const Example = () => {
   const [data, setData] = useState(intialData);
+  
+  const [allEmployees, setAllEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null); // State to store the selected employee data
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
@@ -56,6 +58,21 @@ const Example = () => {
     setSelectedEmployee(row.original); // Store the selected employee data in state
     setIsPopupOpen(true); // Open the pop-up
   };
+
+  useEffect(() =>{
+    const fetchData = async () => {
+      try{
+        const response = await axios.get("https://localhost:7221/login");
+        
+        const userData = response.data;
+        console.log(userData);
+        setAllEmployees(userData.allEmployees);
+      } catch (error) {
+         console.error("Error fetching user data:", error);
+      }
+    };
+    fetchData();
+  },[]);
 
   const handleSaveEdit = () => {
     // Find the index of the edited employee in the data array
