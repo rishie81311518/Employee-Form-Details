@@ -185,13 +185,37 @@ const Profile = () => {
   ];
 
   const top100Films = [
-    { label: "HTML" },
-    { label: "CSS" },
-    { label: "JAVASCRIPT" },
-    { label: "JAVA" },
-    { label: "JQUERY" },
-    { label: "REACT JS" },
-    // ... rest of the movies
+    { label: "Core Java" },
+    { label: "Java SE (Standard Edition)" },
+    { label: "Java EE (Enterprise Edition)" },
+    { label: "Spring Framework" },
+    { label: "Hibernate" },
+    { label: "JavaServer Pages (JSP)" },
+    { label: "Servlets" },
+    { label: "JDBC (Java Database Connectivity)" },
+    { label: "RESTful Web Services" },
+    { label: "SOAP Web Services" },
+    { label: "Maven" },
+    { label: "Gradle" },
+    { label: "JUnit" },
+    { label: "TestNG" },
+    { label: "JavaFX" },
+    { label: "Swing" },
+    { label: "Java Persistence API (JPA)" },
+    { label: "Java Message Service (JMS)" },
+    { label: "Java Authentication and Authorization Service (JAAS)" },
+    { label: "Java Naming and Directory Interface (JNDI)" },
+    { label: "Eclipse IDE" },
+    { label: "IntelliJ IDEA" },
+    { label: "NetBeans IDE" },
+    { label: "Apache Tomcat" },
+    { label: "Jetty Web Server" },
+    { label: "JBoss Application Server" },
+    { label: "JSON (JavaScript Object Notation)" },
+    { label: "XML (eXtensible Markup Language)" },
+    { label: "Design Patterns (e.g., Singleton, Factory, Observer)" },
+    { label: "Multithreading in Java" },
+    // Add more skills as needed
   ];
 
   // const [selectedTechnologies, setSelectedTechnologies] = useState(
@@ -928,6 +952,7 @@ const Profile = () => {
                                 style={{
                                   verticalAlign: "baseline",
                                   marginLeft: "5px",
+                                  color: "#8898aa",
                                 }}
                               >
                                 {reportTo}
@@ -943,12 +968,7 @@ const Profile = () => {
                                 <option value="" style={{ color: "#8898aa" }}>
                                   Select...
                                 </option>
-                                <option
-                                  value="client"
-                                  style={{ color: "#8898aa" }}
-                                >
-                                  Client
-                                </option>
+                                <option value="client">Client</option>
                                 <option
                                   value="manager"
                                   style={{ color: "#8898aa" }}
@@ -1130,12 +1150,18 @@ const Profile = () => {
                         <>
                           <Col lg="4">
                             <FormGroup>
-                              <Label for={`technology-autocomplete-${index}`}>
-                                Technology Name
-                              </Label>
+                              {/* Render label only for the first row */}
+                              {index === 0 && (
+                                <Label for={`technology-autocomplete-${index}`}>
+                                  Technology Name
+                                </Label>
+                              )}
                               <div style={{ marginRight: "50px" }}>
                                 {formSubmitted ? (
-                                  <span className="preview" style={{ color: "#8898aa"}}>
+                                  <span
+                                    className="preview"
+                                    style={{ color: "#8898aa" }}
+                                  >
                                     {selectedTechnologies[index]
                                       ? selectedTechnologies[index].label
                                       : ""}
@@ -1164,15 +1190,61 @@ const Profile = () => {
                             </FormGroup>
                           </Col>
 
+                          {/* <Col lg="4">
+                            <FormGroup>
+                              <Label for={`technology-autocomplete-${index}`}>
+                                Technology Name
+                              </Label>
+                              <div style={{ marginRight: "50px" }}>
+                                {formSubmitted ? (
+                                  <span
+                                    className="preview"
+                                    style={{ color: "#8898aa" }}
+                                  >
+                                    {selectedTechnologies[index]
+                                      ? selectedTechnologies[index].label
+                                      : ""}
+                                  </span>
+                                ) : (
+                                  <Autocomplete
+                                    disablePortal
+                                    id={`technology-autocomplete-${index}`}
+                                    options={top100Films}
+                                    value={selectedTechnologies[index]}
+                                    sx={{ width: "200px", height: "50px" }}
+                                    onChange={handleTechnologyChange(index)}
+                                    onBlur={() => validateTechnology(index)}
+                                    getOptionLabel={(option) => option.label}
+                                    renderInput={(params) => (
+                                      <TextField
+                                        {...params}
+                                        label="Technology Name"
+                                        error={!!technologyErrors[index]}
+                                        helperText={technologyErrors[index]}
+                                      />
+                                    )}
+                                  />
+                                )}
+                              </div>
+                            </FormGroup>
+                          </Col> */}
+
                           <Col lg="4">
                             <FormGroup>
                               <div>
-                                <Label for={`experience-autocomplete-${index}`}>
-                                  Experience
-                                </Label>
+                                {index === 0 && (
+                                  <Label
+                                    for={`experience-autocomplete-${index}`}
+                                  >
+                                    Experience
+                                  </Label>
+                                )}
                                 <div style={{ marginRight: "50px" }}>
                                   {formSubmitted ? (
-                                    <span className="preview">
+                                    <span
+                                      className="preview"
+                                      style={{ color: "#8898aa" }}
+                                    >
                                       {selectedExperiences[index]
                                         ? selectedExperiences[index].label
                                         : ""}
@@ -1182,9 +1254,7 @@ const Profile = () => {
                                           verticalAlign: "baseline",
                                           marginLeft: "5px",
                                         }}
-                                      >
-                                        (Submitted)
-                                      </span>
+                                      ></span>
                                     </span>
                                   ) : (
                                     <Autocomplete
@@ -1214,12 +1284,19 @@ const Profile = () => {
                           <Col lg="4">
                             <FormGroup>
                               <div>
-                                <Label for={`expertise-autocomplete-${index}`}>
-                                  Expertise
-                                </Label>
+                                {index === 0 && (
+                                  <Label
+                                    for={`expertise-autocomplete-${index}`}
+                                  >
+                                    Expertise
+                                  </Label>
+                                )}
                                 <div style={{ marginRight: "50px" }}>
                                   {formSubmitted ? (
-                                    <span className="preview">
+                                    <span
+                                      className="preview"
+                                      style={{ color: "#8898aa" }}
+                                    >
                                       {selectedExpertises[index]
                                         ? selectedExpertises[index].label
                                         : ""}
@@ -1229,9 +1306,7 @@ const Profile = () => {
                                           verticalAlign: "baseline",
                                           marginLeft: "5px",
                                         }}
-                                      >
-                                        (Submitted)
-                                      </span>
+                                      ></span>
                                     </span>
                                   ) : (
                                     <Autocomplete
@@ -1266,21 +1341,31 @@ const Profile = () => {
                           {!formSubmitted &&
                             skills.length > 1 &&
                             index !== arr.length - 1 && (
-                              <Button
+                              <div
                                 style={{
-                                  height: "30px",
-                                  width: "30px",
-                                  position: "absolute",
-                                  right: "60px",
-                                  float: "right",
+                                  position: "relative",
+                                  display: "flex",
+                                  marginBottom: "2px",
                                   alignItems: "center",
+                                  top: "-4px",
                                 }}
-                                size="sm"
-                                color="danger"
-                                onClick={() => handleRemoveSkill(index)}
                               >
-                                -
-                              </Button>
+                                <Button
+                                  style={{
+                                    height: "30px",
+                                    width: "30px",
+                                    position: "absolute",
+                                    right: "60px",
+                                    float: "right",
+                                    alignItems: "center",
+                                  }}
+                                  size="sm"
+                                  color="danger"
+                                  onClick={() => handleRemoveSkill(index)}
+                                >
+                                  -
+                                </Button>
+                              </div>
                             )}
 
                           <br />
@@ -1293,7 +1378,10 @@ const Profile = () => {
                           style={{
                             display: "flex",
                             justifyContent: "flex-end",
-                            marginBottom: "25px",
+                            position: "relative",
+                            marginBottom: "50px",
+                            left: "12px",
+                            top: "-10px",
                           }}
                         >
                           <Button
@@ -1302,6 +1390,7 @@ const Profile = () => {
                               width: "30px",
                               float: "right",
                               position: "absolute",
+                              top: "20px",
                               alignItems: "center",
                               right: "69px",
                             }}
@@ -1466,7 +1555,7 @@ const Profile = () => {
                   <div className="pl-lg-4">
                     <FormGroup>
                       {formSubmitted ? (
-                        <span>{about_me}</span>
+                        <span style={{ color: "#8898aa" }}>{about_me}</span>
                       ) : (
                         <Input
                           // className="form-control-alternative"

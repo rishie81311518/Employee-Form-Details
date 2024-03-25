@@ -22,7 +22,6 @@ const Login = () => {
     loginId: "",
     password: "",
   });
-
   //const { setUserData } = useUser();
   const { setLoggedUserData} = useUser();
 
@@ -71,6 +70,8 @@ const Login = () => {
       setError("Invalid email or password. please try again");
     }
   };
+  
+  
 
   return (
     <Col lg="6" md="7">

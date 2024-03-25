@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import useUser from "./UserProvider.js";
 //Date Picker Imports - these should just be in your Context Provider
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -38,7 +39,7 @@ import intialData from "../examples/makeData.js"
 
 const Example = () => {
   const [data, setData] = useState(intialData);
-  
+
   const [allEmployees, setAllEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null); // State to store the selected employee data
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -62,14 +63,15 @@ const Example = () => {
   useEffect(() =>{
     const fetchData = async () => {
       try{
-        const response = await axios.get("https://localhost:7221/login");
+        const response = await axios.get("https://localhost:7221/api/Employee/GetAllEmployees");
         
         const userData = response.data;
+      
         console.log(userData);
-        setAllEmployees(userData.allEmployees);
+        setAllEmployees(userData);
       } catch (error) {
          console.error("Error fetching user data:", error);
-      }
+    }
     };
     fetchData();
   },[]);
@@ -233,7 +235,7 @@ const Example = () => {
             ),
           },
           {
-            accessorKey: "email", //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
+            accessorKey: "employee_email", //accessorKey used to define `data` column. `id` gets set to accessorKey automatically
             enableClickToCopy: true,
             filterVariant: "autocomplete",
             header: "Email",
@@ -246,7 +248,7 @@ const Example = () => {
         header: "Job Info",
         columns: [
           {
-            accessorKey: "address",
+            accessorKey: "job_title",
             // filterVariant: 'range', //if not using filter modes feature, use this instead of filterFn
             filterFn: "between",
             header: "Address",
@@ -303,9 +305,10 @@ const Example = () => {
     []
   );
 
+  console.log(allEmployees);
   const table = useMaterialReactTable({
     columns,
-    data,
+     data: allEmployees,
     //data must be memoized or stable (useState, useMemo, defined outside of this component, etc.)
     enableColumnFilterModes: true,
     enableColumnOrdering: true,
@@ -452,13 +455,28 @@ const Example = () => {
   );
 };
 
-const Admin = () => (
+
+
+const Admin = () => {
+  const { loggedUserData } = useUser();
+  console.log(loggedUserData.role_id)
   //App.tsx or AppProviders file
-  <div>
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Example />
-    </LocalizationProvider>
-  </div>
-);
+  return (
+    <>
+    <div>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        {loggedUserData && loggedUserData.role_id > 1 ? (
+          <Example />
+        ):(
+       <p>No Access</p>
+        )}
+        
+      </LocalizationProvider>
+    </div>
+    </>
+  );
+}
+  
+  
 
 export default Admin;

@@ -15,7 +15,7 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
-import React from "react";
+import React, { Component } from "react";
 import ReactDOM from "react-dom/client";
 
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
@@ -27,19 +27,23 @@ import { UserProvider } from "views/examples/UserProvider.js";
 import AdminLayout from "layouts/Admin.js";
 import AuthLayout from "layouts/Auth.js";
 
+
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 
 
 root.render(
   <UserProvider>
-<BrowserRouter>
-    <Routes>
-      <Route path="/admin/*" element={<AdminLayout />} />
-      <Route path="/auth/*" element={<AuthLayout />} />
-      <Route path="*" element={<Navigate to="/auth/login" replace />} />
-    </Routes>
-  </BrowserRouter>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/admin/*" element={<AdminLayout />} />
+        <Route path="/auth/*" element={<AuthLayout />} />
+
+        <Route path="*" element={<Navigate to="/auth/login" replace />} />
+
+      </Routes>
+    </BrowserRouter>
   </UserProvider>
-  
+
 );
